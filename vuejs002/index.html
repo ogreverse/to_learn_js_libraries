@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vueインスタンス</title>
+    <script src="vue.js"></script>
+    <script>
+        /**
+         * オブジェクトの書き換え
+         */
+
+        var data1 = { a: 1 };
+        var vm1 = new Vue({
+            data: data1
+        });
+
+        // data.a はインスタンスが生成された時に存在していたので変更可能
+        vm1.a = 2;
+        console.log(data1.a);
+
+        // 逆もOK
+        data1.a = 3;
+        console.log(vm1.a);
+
+        // インスタンス生成時に存在していないプロパティはリアクティブになってないのでオブジェクトの変更は不可能
+        vm1.b = 1;
+        console.log(data1.b);    // undefined
+        // 初期値を設定しとけば undefined にはならない
+
+        /**
+         * オブジェクトの書き換えを不可能にする
+         */
+        var data2 = { a: 1 };
+
+        // 書き換え不可
+        Object.freeze(data2);
+
+        var vm2 = new Vue({
+            data: data2
+        });
+
+        // vm2.a = 2;   // これはエラー (なのでコメントアウト)
+        data2.a = 2;    // 変更されない
+        console.log(vm2.a);     // 1
+        console.log(data2.a);   // 1
+    </script>
+
+    <div id="example"></div>
+    <script>
+        /**
+         * ユーザー定義プロパティについて
+         */
+        var data3 = {a: 1};
+        var vm3 = new Vue({
+            el: '#example',
+            data: data3
+        });
+
+        // $をつけるとユーザー定義プロパティを示す
+        console.log(vm3.$el === document.getElementById('example'));
+        console.log(vm3.$data === data3);
+    </script>
+
+    <script>
+        /**
+         * ライフサイクルフックについて
+         *
+         * Vueインスタンスの初期化の過程でユーザー自身のコードを追加する
+         */
+        new Vue({
+            data: { a: 1 },
+            // createdフック : インスタンス生成後に実行されるフック
+            created: function() {
+                console.log('a is ' + this.a);
+            },
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
