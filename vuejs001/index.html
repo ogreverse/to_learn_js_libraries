@@ -9,7 +9,11 @@
     <title>learn Vue.js</title>
 </head>
 <body>
-    <!-- 宣言的レンダリング -->
+    <h2>[1] 宣言的レンダリング</h2>
+    <p>
+        データとDOMの関連付け<br>
+        全てがリアクティブ(反応性)になっている。
+    </p>
     <div id="app">
         {{ message }}
     </div>
@@ -22,9 +26,13 @@
         });
     </script>
 
+    <h2>[2] (v-bindディレクティブ)</h2>
+    <p>
+        title属性をVueインスタンスのmessageプロパティで更新して保存する
+    </p>
     <div id="app-2">
         <span v-bind:title="message">
-            この文字列に数秒マウスオーバーすると動的にtitleがbindされるよ
+            このテキストのspanタグのtitle属性にメッセージが入っている。(マウスオーバーで見れる)
         </span>
     </div>
     <script>
@@ -32,6 +40,116 @@
             el: '#app-2',
             data: {
                 message: 'このページを以下の日付でロードしました\n' + new Date().toLocaleString()
+            }
+        });
+    </script>
+
+    <h2>[3] Transition Effect (遷移効果) (v-ifディレクティブ)</h2>
+    <p>
+        要素をVueによって挿入/更新/削除する時に、自動的に適用される効果<br>
+        以下の文はコンソールで app3.seen = false とすると消える。
+    </p>
+    <div id="app-3">
+        <span v-if="seen">見えてる</span>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app-3',
+            data: {
+                seen: true
+            }
+        });
+    </script>
+
+    <h2>[4] ループ処理 (v-forディレクティブ)</h2>
+    <p>
+        app4.todos.push({ text: 'New item' }) とすることでリストにアイテムを追加できる。
+    </p>
+    <div id="app-4">
+        <ol>
+            <li v-for="todo in todos">
+                {{ todo.text }}
+            </li>
+        </ol>
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app-4',
+            data: {
+                todos: [
+                    { text: 'Learn javascript' },
+                    { text: 'Learn Vue' }
+                ]
+            }
+        })
+    </script>
+
+    <h2>[5] ユーザー入力の制御 (v-onディレクティブ)</h2>
+    <div id="app-5">
+        <p>{{ message }}</p>
+        <button v-on:click="reverseMessage">Reverse Message</button>
+    </div>
+    <script>
+        var app5 = new Vue({
+            el: '#app-5',
+            data: {
+                message: 'Hello Vue.js'
+            },
+            methods: {
+                // ↓ DOM操作は行ってないこのに注目！
+                reverseMessage: function() {
+                    this.message = this.message.split('').reverse().join()
+                }
+            }
+        });
+    </script>
+
+    <h2>[6] 双方向バインディング</h2>
+    <p>
+        inputに入力したテキストとapp6.messageの中身がバインディングされている
+    </p>
+    <div id="app-6">
+        <p>{{ message }}</p>
+        <input type="text" v-model="message">
+    </div>
+    <script>
+        var app6 = new Vue({
+            el: '#app-6',
+            data: {
+                message: 'Hello Vue!'
+            }
+        });
+    </script>
+
+    <h2>[7] コンポーネント</h2>
+    <p>
+        Vueにおいてコンポーネントは、あらかじめ定義されたオプションを持つVueインスタンス。
+        大規模なアプリケーションでは、開発を行いやすくするために、アプリケーション全体をコンポーネントに分割することが必要。
+    </p>
+    <div id="app-7">
+        <ol>
+            <!-- groceryListをループして、itemをtodo_propプロパティ経由でコンポーネントに渡している -->
+            <todo-item v-for="item in groceryList" v-bind:todo_prop="item"></todo-item>
+        </ol>
+    </div>
+    <script>
+        // コンポーネントの定義
+        // todo-itemというタグを作る
+        // v-bindを使って、todo_prop という "プロパティ" にitemを渡せるようにする
+        Vue.component('todo-item', {
+            props: ['todo_prop'],
+            template: '<li>{{ todo_prop.text }} (id = {{todo_prop.id}})</li>'
+        });
+
+        // ループする配列の定義
+        var app7 = new Vue({
+            el: '#app-7',
+            data: {
+                groceryList: [
+                    { id: 0, text: '野菜'},
+                    { id: 1, text: 'チーズ'},
+                    { id: 2, text: '肉'}
+                ]
             }
         });
     </script>
