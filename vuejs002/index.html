@@ -69,13 +69,16 @@
          * ライフサイクルフックについて
          *
          * Vueインスタンスの初期化の過程でユーザー自身のコードを追加する
+         * mounted, updated などのフックがあるが、どのタイミングでどのフックが動くかは
+         * https://jp.vuejs.org/v2/guide/instance.html
+         * を参照
          */
         new Vue({
             data: { a: 1 },
             // createdフック : インスタンス生成後に実行されるフック
             created: function() {
                 console.log('a is ' + this.a);
-            },
+            }
         });
 
 
