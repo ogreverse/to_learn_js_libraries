@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>テンプレート構文</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>[1] v-onceディレクティブ</h2>
+    <p>
+        v-once を使うと、変数の展開は一度だけ行われる。そのあと更新はされない。
+    </p>
+    <div id="app1">
+        <input type="text" v-model="msg1">
+        <p>v-once無し : {{ msg1 }}</p>
+        <p v-once>v-once付き : {{ msg1 }}</p>
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                msg1: '初期のテキスト'
+            }
+        });
+    </script>
+
+    <h2>[2] v-htmlディレクティブ</h2>
+    <p>
+        v-html を使うと、変数のテキストがhtmlとして解釈される。
+    </p>
+    <div id="app2">
+        <p style="font-style: italic;">↓ mustachesで変数を展開したもの</p>
+        <p>{{ msg2 }}</p>
+        <p style="font-style: italic;">↓ v-htmlディレクティブの値に変数名を入れたもの</p>
+        <p v-html="msg2"></p>
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                msg2: '<span style="color: green;">green</span>'
+            }
+        });
+    </script>
+
+    <h2>[3] v-bindディレクティブ (htmlタグの属性に変数の値を入れる) と引数について</h2>
+    <div id="app3">
+        <p style="font-style: italic;">↓ &lt;p v-bind:style="attr3"&gt;v-bindでスタイルを適用した&lt;/p&gt;</p>
+        <p style="font-style: italic;">　※ "v-bind:引数" で変数を渡せる。
+        <p v-bind:style="attr3">v-bindでスタイルを適用した</p>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                attr3: 'color: blue;'
+            }
+        });
+    </script>
+
+    <h2>[4] v-onディレクティブ (イベントトリガー) と修飾子について</h2>
+    <div id="app4">
+        <p style="font-style: italic;">↓ &lt;form v-on:submit.prevent="onSubmit"&gt; ... &lt;/form&gt;</p>
+        <p style="font-style: italic;">　※ "v-on:submit.prevent" でトリガしたイベントで event.preventDefault() を呼ぶように伝えられる</p>
+        <form v-on:submit.prevent="onSubmit">
+            <p>{{ msg4 }}</p>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            data: {
+                msg4: ''
+            },
+            methods: {
+                onSubmit: function () {
+                    this.msg4 = 'Submitした';
+                }
+            }
+        });
+    </script>
+
+    <h2>[5] 省略記法</h2>
+    <p>
+        v-bind と v-on はよく使われるので省略の書き方ができる。
+    </p>
+    <p style="font-style: italic;">v-bind:href="url" => :href="url"</p>
+    <p style="font-style: italic;">v-on:click="doSomething" => @click="doSomething"</p>
+    <p style="font-style: italic;">↓ &lt;a :href="url" @click="countUp"&gt;カウントアップ: {{ count5 }}&lt;/a&gt;</p>
+    <div id="app5">
+        <a :href="url" @click="countUp">カウントアップ: {{ count5 }}</a>
+    </div>
+    <script>
+        var app5 = new Vue({
+            el: '#app5',
+            data: {
+                url: '#app5',
+                count5: 0
+            },
+            methods: {
+                countUp: function() {
+                    this.count5++
+                }
+            }
+        });
+    </script>
+
+    <h2>[6] JavaScriptの式を使う</h2>
+    <p>
+        単一の式のみ可能で、"var a = 1" などの文はだめ。
+    </p>
+    <div id="app6">
+        <p style="font-style: italic;">↓ num6 + 1</p>
+        <p>{{ num6 + 1 }}</p>
+        <p style="font-style: italic;">↓ ok6 ? 'YES' : 'NO'</p>
+        <p>{{ ok6 ? 'YES' : 'NO' }}</p>
+        <input type="text" v-model="ok6">
+        <p style="font-style: italic;">↓ msg6.split('').reverse().join('')</p>
+        <p>{{ msg6.split('').reverse().join('') }}</p>
+    </div>
+    <script>
+        var app6 = new Vue({
+            el: '#app6',
+            data: {
+                num6: 10,
+                ok6: 'YES',
+                msg6: 'こんにちわ'
+            }
+        });
+    </script>
+</body>
+</html>
