@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>算出プロパティとウォッチャ</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>算出プロパティ</h2>
+    <p>
+        message.split('').reverse().join('') のようなロジックをテンプレートで埋め込まないためのもの。
+    </p>
+    <div id="app1">
+        <p>original message : {{ mes1 }}</p>
+        <p>computed message : {{ reversedMes1 }}</p>
+        <p style="font-style:italic;">↓ v-modelを使ってプロパティを書き換えると、動的に逆順にできる。</p>
+        <input type="text" v-model="mes1">
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                mes1: 'Hello',
+            },
+            computed: {
+                reversedMes1: function() {
+                    return this.mes1.split('').reverse().join('');
+                }
+            }
+        });
+    </script>
+
+    <h2>監視プロパティ (watched property)</h2>
+    <div id="app2">
+        <input type="text" v-model="firstName">
+        <input type="text" v-model="lastName">
+        <p>watchを使ったfullName : {{ watchedFullName }}</p>
+        <p>computedを使ったfullName : {{ computedFullName }}</p>
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                firstName: '名',
+                lastName: '氏',
+                watchedFullName: '名 氏'
+            },
+            // watchを使うとプロパティの変更を監視して、プロパティを書き換えられる
+            watch: {
+                firstName: function (val) {
+                    this.watchedFullName = val + ' ' + this.lastName
+                },
+                lastName: function (val) {
+                    this.watchedFullName = this.firstName + ' ' + val
+                }
+            },
+            // ただし上の場合は, watchを使うよりはcomputedを使って値を返すほうがいい
+            // watchなら依存しているプロパティ (firstNameやlastName) が変わったタイミングのみ算出が実行される
+            computed: {
+                computedFullName: function() {
+                    return this.firstName + ' ' + this.lastName;
+                }
+            }
+        });
+    </script>
+
+    <h2>カスタムウォッチャ</h2>
+    <p>
+        データが変わるのに応じて、非同期やコストの高い処理を実行したい時に使う。
+        入力中の待ちや、回答が取得できるまでの中間状態を実装するのは、算出プロパティではできない。
+    </p>
+    <div id="app3">
+        <input type="text" v-model="question">
+        <p>{{ answer }}</p>
+        <img v-bind:src="imageUrl" alt="">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                question: '',
+                answer: '質問を記入してください',
+                imageUrl: ''
+            },
+            watch: {
+                question: function(newQuestion, oldQuestion) {
+                    this.answer = '入力待ち...';
+                    this.getAnswer();
+                }
+            },
+            methods: {
+                // _.debounce はコストの高い処理を制御するためのlodashの関数
+                getAnswer: _.debounce(
+                    function() {
+                        if (this.question.indexOf('?') === -1) {
+                            this.answer = '質問は "?" を含めて下さい';
+                            return;
+                        }
+
+                        this.answer = '回答を取得中...';
+
+                        // responseの処理で使うために一旦Vueインスタンスを変数に入れる
+                        var v = this;
+
+                        // ajaxで回答を取得
+                        axios.get('https://yesno.wtf/api', null)
+                            .then(function(response){
+                                v.answer = _.capitalize(response.data.answer);
+                                v.imageUrl = response.data.image;
+                            })
+                            .catch(function(error){
+                                v.answer = 'エラー:' + error;
+                            });
+                    },
+                    // 入力の待ち時間 [ms]
+                    500
+                )
+            }
+        });
+    </script>
+</body>
+</html>
