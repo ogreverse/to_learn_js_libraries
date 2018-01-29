@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>クラスとスタイルのバインディング</title>
+    <script src="../vue.js"></script>
+    <style>
+        .class_name {
+            color: red;
+        }
+        .another_class_name {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTMLスタイルのバインディング</h1>
+
+    <h2>[1] オブジェクト構文</h2>
+    <p>
+        タグのクラスを切り替えるオブジェクトを渡す
+    </p>
+    <div id="app1">
+        <a href="#" @click.prevent="change">ここを押すとクラスの有効/無効を切り替える</a>
+
+        <p v-bind:class="{ 'class_name': isClassNameActive, 'another_class_name': isAnotherClassNameActive }">
+            data の isClassNameActive が true なら、class="class_name" になる。
+        </p>
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                isClassNameActive: true,
+                isAnotherClassNameActive: true
+            },
+            methods: {
+                change: function () {
+                    this.isClassNameActive = (this.isClassNameActive !== true);
+                }
+            }
+        });
+    </script>
+
+    <h2>[2] 配列構文</h2>
+    <p>
+        配列構文でもクラス切り替えができる。
+    </p>
+    <div id="app2">
+        <a href="#" @click.prevent="change">ここを押すとクラスの有効/無効を切り替える</a>
+
+        <p v-bind:class="[isClassNameActive ? className : '', anotherClassName]">
+            配列形式で記述したり、内部で三項演算子も使える。
+        </p>
+        <p v-bind:class="[{ class_name: isClassNameActive }, anotherClassName]">
+            配列構文内部でもオブジェクト構文も使える。<br>
+            ただし、オブジェクトのキーに変数は使えないようだ。
+        </p>
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                className: 'class_name',
+                anotherClassName: 'another_class_name',
+                isClassNameActive: true,
+                isAnotherClassNameActive: true
+            },
+            methods: {
+                change: function () {
+                    this.isClassNameActive = (this.isClassNameActive !== true);
+                }
+            }
+        });
+    </script>
+
+    <h2>[3] コンポーネントにおいて</h2>
+    <div id="app3">
+        <a href="#" @click.prevent="change">ここを押すとクラスの有効/無効を切り替える</a>
+
+        <p>コンポーネントにclassを指定すると、classを追加できる</p>
+        <component3 class="added_class"></component3>
+        <p>クラスバインディングも同じように追加できる。</p>
+        <component3 v-bind:class="{ class_name: isClassNameActive }"></component3>
+    </div>
+    <script>
+        Vue.component('component3', {
+            template: '<p class="prepared_class">こんにちわ</p>'
+        });
+
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                isClassNameActive: true
+            },
+            methods: {
+                change: function () {
+                    this.isClassNameActive = (this.isClassNameActive !== true);
+                }
+            }
+        });
+    </script>
+
+    <!----------------------------------------------------------------------------->
+
+    <h1>インラインスタイルのバインディング</h1>
+
+    <h2>オブジェクト構文</h2>
+    <p>
+        オブジェクト構文のcssのプロパティ名には、キャメルケースと<br>
+        シングルクォートで囲まれたケバブケース(ハイフン付きの名前)どちらでも使える。
+    </p>
+    <div id="app4">
+        <p v-bind:style="{ color: activeColor, fontSize: fontSize + 'px', 'font-weight': fontWeight }">
+            インラインで直接スタイルを指定した文
+        </p>
+        <p v-bind:style="styleObject">
+            dataのstyleオブジェクトにスタイルを保持したものを利用した文
+        </p>
+        <p v-bind:style="{ transform: 'translateX(1px) translateY(1px) rotate(2deg)' }">
+            自動プリフィックス<br>
+            v-bind:styleを使うと、ブラウザごとのprefixも自動でつけてくれる
+        </p>
+        <div>
+            <p>ブラウザがサポートしているスタイル（配列の最後の値だけ）を描画する</p>
+            <ul v-bind:style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }">
+                <li>あいうえお</li>
+                <li>かきくけこ</li>
+                <li>さしすせそ</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            data: {
+                activeColor: 'red',
+                fontSize: 10,
+                fontWeight: 'bold',
+                // cssをstyleオブジェクトとして定義してもいい
+                styleObject: {
+                    // methods のように this.* を使って上で定義している値は使えないようだ。
+                    // (これはダメ) color: this.activeColor
+                    color: 'red',
+                    fontSize: 10 + 'px',
+                    'font-weight': 'bold',
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
