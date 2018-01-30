@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>条件付きレンダリング</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>v-if, v-else</h2>
+    <p>
+        v-if, v-else の使い方。<br>
+        v-if はディレクティブなので、単一の要素に不可する必要がある。
+    </p>
+    <div id="app1">
+        <input type="button" @click="shiftBool" value="bool切り替え">
+        <p v-if="ok">bool = true</p>
+        <p v-else>bool = false</p>
+
+        <template v-if="ok">
+            <p>複数の要素を、</p>
+            <p>一度に切り替えたい場合は、</p>
+            <p>&lt;template&gt;で囲って、それにv-ifをつける。</p>
+        </template>
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                ok: true
+            },
+            methods: {
+                shiftBool: function() {
+                    this.ok = this.ok !== true;
+                }
+            }
+        });
+    </script>
+
+    <h2>v-else-if</h2>
+    <div id="app2">
+        <input type="button" @click="shiftParam" value="値切り替え">
+        <p v-if="param === 0">１</p>
+        <p v-else-if="param === 1">２</p>
+        <p v-else>３</p>
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                param: 0
+            },
+            methods: {
+                shiftParam: function() {
+                    if (this.param != 2) {
+                        this.param++;
+                    } else {
+                        this.param = 0;
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>keyによる再利用可能な要素の制御</h2>
+    <p>
+        key属性がないと、入力欄を切り替えると、入力中のテキストが互いの入力欄を移動してしまう。<br>
+        key属性があると、inputが最初から描画される。
+    </p>
+    <div id="app3">
+        <input type="button" @click="changeInput" value="入力欄切り替え">
+
+        <p>key属性なし</p>
+        <template v-if="type === 'username'">
+            <label>Username</label>
+            <input type="text" placeholder="名前">
+        </template>
+        <template v-else>
+            <label>Email</label>
+            <input type="text" placeholder="Email">
+        </template>
+
+        <p>key属性あり</p>
+        <template v-if="type === 'username'">
+            <label>Username</label>
+            <input type="text" placeholder="名前" key="username-input">
+        </template>
+        <template v-else>
+            <label>Email</label>
+            <input type="text" placeholder="Email" key="email-input">
+        </template>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                type: 'username'
+            },
+            methods: {
+                changeInput: function() {
+                    if (this.type === 'username') {
+                        this.type = 'email';
+                    } else {
+                        this.type = 'username';
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>v-show</h2>
+    <p>
+        v-show も v-if とほとんど同じ。<br>
+        v-showの場合は常に描画されてDOMに維持される。<br>
+        また、v-else や &lt;template&gt;はサポートされない。<br>
+        初期描画コストは v-show が高く、切り替えコストは v-if が高い。<br>
+        よって頻繁に切り替える場合は v-show, 条件の変更がほとんどない場合は v-if を使う。
+    </p>
+    <div id="app4">
+        <input type="button" @click="shiftBool" value="bool切り替え"><br>
+        v-show : <input type="text" v-show="ok" placeholder="v-show"><br>
+        v-if : <input type="text" v-if="ok" placeholder="v-if">
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            data: {
+                ok: true
+            },
+            methods: {
+                shiftBool: function() {
+                    this.ok = this.ok !== true;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
