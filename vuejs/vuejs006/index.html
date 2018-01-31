@@ -9,7 +9,7 @@
     <script src="../vue.js"></script>
 </head>
 <body>
-    <h2>v-if, v-else</h2>
+    <h2>[1] v-if, v-else</h2>
     <p>
         v-if, v-else の使い方。<br>
         v-if はディレクティブなので、単一の要素に不可する必要がある。
@@ -39,7 +39,7 @@
         });
     </script>
 
-    <h2>v-else-if</h2>
+    <h2>[2] v-else-if</h2>
     <div id="app2">
         <input type="button" @click="shiftParam" value="値切り替え">
         <p v-if="param === 0">１</p>
@@ -64,7 +64,7 @@
         });
     </script>
 
-    <h2>keyによる再利用可能な要素の制御</h2>
+    <h2>[3] keyによる再利用可能な要素の制御</h2>
     <p>
         key属性がないと、入力欄を切り替えると、入力中のテキストが互いの入力欄を移動してしまう。<br>
         key属性があると、inputが最初から描画される。
@@ -110,7 +110,7 @@
         });
     </script>
 
-    <h2>v-show</h2>
+    <h2>[4] v-show</h2>
     <p>
         v-show も v-if とほとんど同じ。<br>
         v-showの場合は常に描画されてDOMに維持される。<br>
