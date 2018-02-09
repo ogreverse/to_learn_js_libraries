@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>リストレンダリング</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>[1] v-for</h2>
+    <p>
+        v-forブロック内では、親スコープのプロパティへのアクセスも可能。<br>
+        また、v-for内でインデックスは２つ目の引数でアクセスできる。<br>
+        in ではなく of でも良い。
+    </p>
+    <div id="app1">
+        <hr>
+        <p v-for="item in items">
+            {{ parentMessage }} {{ item.message }}
+        </p>
+        <hr>
+        <hr>
+        <p v-for="(item, index) of items">
+            {{ index }} : {{ parentMessage }} {{ item.message }}
+        </p>
+        <hr>
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                parentMessage: '親のメッセージ',
+                items: [
+                    { message: 'メッセージ1' },
+                    { message: 'メッセージ2' }
+                ]
+            }
+        });
+    </script>
+
+    <h2>[2] オブジェクトのv-for</h2>
+    <p>
+        オブジェクトのプロパティに対してv-forを使える。<br>
+        この場合、２つ目の引数がkey、３つ目の引数がindexになる。
+    </p>
+    <div id="app2">
+        <hr>
+        <p v-for="value in object">
+            {{ value }}
+        </p>
+        <hr>
+        <hr>
+        <p v-for="(value, key) in object">
+            {{ key }} : {{ value }}
+        </p>
+        <hr>
+        <hr>
+        <p v-for="(value, key, index) in object">
+            {{ index }} : {{ key }} : {{ value }}
+        </p>
+        <hr>
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                object: {
+                    first : 'Ichiro',
+                    last  : 'Tanaka',
+                    age   : 30
+                }
+            }
+        });
+    </script>
+
+    <h2>[3] keyについて</h2>
+    <p>
+        可能なときはいつでも v-for に key を与えることが推奨される。<br>
+        繰り返される DOM の内容が単純でない、または性能向上を標準の動作に意図的に頼っていない場合に限る。<br>
+        <span style="text-decoration: underline;">コンポーネントでv-forを使用するときは、keyは必須。</span>
+    </p>
+    <div id="app3">
+        <!-- :key は v-bind の省略記法 -->
+        <p v-for="item in items" :key="item.id">
+            {{ item.id }} {{ item.message }}
+        </p>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                items: [
+                    { id: 0, message: 'メッセージ１' },
+                    { id: 1, message: 'メッセージ２' }
+                ]
+            }
+        });
+    </script>
+
+    <h2>[4] 配列の変更メソッド</h2>
+    <p>
+        以下のメソッドを配列に対して使える。また更新した場合は最新の状態でレンダリングされる。<br>
+        push()<br>
+        pop()<br>
+        shift()<br>
+        unshift()<br>
+        splice()<br>
+        sort()<br>
+        reverse()
+    </p>
+    <div id="app4">
+        <input type="button" @click="addMessage" value="メッセージ追加">
+        <p v-for="item in items">
+            {{ item.message }}
+        </p>
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            data: {
+                items: [
+                    { message: 'メッセージ1' },
+                    { message: 'メッセージ2' }
+                ]
+            },
+            methods: {
+                addMessage: function() {
+                    this.items.push({ message: 'メッセージ' });
+                }
+            }
+        });
+    </script>
+
+    <p>
+        array[index] = newValue のように配列の値を直接追加したり、<br>
+        array.length = newLength のように配列の長さを変更する場合は、Vueは変更を検出できない。<br>
+        と書いてあったが普通に変更できる。（なんでだろ？）
+    </p>
+    <div id="app5">
+        <input type="button" @click="changeValueDirectly" value="メッセージ１の内容を直接書き換えるボタン">
+        <p v-for="item in items">
+            {{ item.message }}
+        </p>
+    </div>
+    <script>
+        var app5 = new Vue({
+            el: '#app5',
+            data: {
+                items: [
+                    { message: 'メッセージ1' },
+                    { message: 'メッセージ2' }
+                ]
+            },
+            methods: {
+                changeValueDirectly: function() {
+                    this.items[0]['message'] = 'methods経由で値を変更できる。';
+                }
+            }
+        });
+
+        app5.items[1]['message'] = '既存のキーの既存の値を変更できる。';
+        app5.items[2] = { message: '新しいインデックスで値の追加もできる。' };
+    </script>
+
+    <div id="app6">
+        <p>{{ userProfile }}</p>
+    </div>
+    <script>
+        var app6 = new Vue({
+            el: '#app6',
+            data: {
+                userProfile: {
+                    name: 'Tanaka'
+                }
+            }
+        });
+
+        // これはリアクティブにならない(はずだけどリアクティブになる)
+        app6.userProfile.age = 20;
+
+        // Vue.set(object, key, value) を使うとリアクティブになる
+        Vue.set(app6.userProfile, 'blood', 'A');
+    </script>
+
+    <h2>[5] フィルタ/ソートされた結果の表示</h2>
+    <p>
+        フィルタリングやソートを算出プロパティやメソッドで実装する.
+
+    </p>
+    <div id="app7">
+        <ul>
+            <li v-for="n in evenNumbers">{{ n }}</li>
+        </ul>
+        <ul>
+            <li v-for="n in even(numbers)">{{ n }}</li>
+        </ul>
+        <ul>
+            <li>おまけ:v-forは整数値をとることもできる。</li>
+            <li><span v-for="n in 10">{{ n }} </span></li>
+        </ul>
+    </div>
+    <script>
+        var app7 = new Vue({
+            el: '#app7',
+            data: {
+                numbers: [ 1, 2, 3, 4, 5 ]
+            },
+            // vuejs004 の算出プロパティでソート
+            computed: {
+                evenNumbers: function() {
+                    return this.numbers.filter(function (number) {
+                        return number % 2 === 0
+                    });
+                }
+            },
+            // 算出プロパティが使えない場合のメソッドによるソート
+            // numbers を引数で渡す
+            methods: {
+                even: function (numbers) {
+                    return numbers.filter(function (number) {
+                        return number % 2 === 0
+                    });
+                }
+            }
+        });
+    </script>
+
+    <h2>[6] &lt;template&gt; での v-for</h2>
+    <p>
+        v-ifと同様に複数の要素ブロックのレンダリングのために、&lt;template&gt;が使える
+    </p>
+    <div id="app8">
+        <ul>
+            <template v-for="item in items">
+                <li>{{ item.msg }}</li>
+                <li class="divider"></li>
+            </template>
+        </ul>
+    </div>
+    <script>
+        var app8 = new Vue({
+            el: '#app8',
+            data: {
+                items: [
+                    { msg: '1' },
+                    { msg: '2' },
+                    { msg: '3' },
+                    { msg: '4' },
+                    { msg: '5' }
+                ]
+            }
+        });
+    </script>
+
+    <h2>[7] v-for と v-if の優先度</h2>
+    <p>
+        v-for の方が優先度が高い
+    </p>
+    <div id="app9">
+        <ul>
+            <template v-for="item in items" v-if="item.isEven">
+                <li>{{ item.msg }}</li>
+            </template>
+        </ul>
+    </div>
+    <script>
+        var app9 = new Vue({
+            el: '#app9',
+            data: {
+                items: [
+                    { msg: 1, isEven: false },
+                    { msg: 2, isEven: true },
+                    { msg: 3, isEven: false },
+                    { msg: 4, isEven: true },
+                    { msg: 5, isEven: false }
+                ]
+            }
+        });
+    </script>
+
+    <h2>[8] コンポーネントとv-for</h2>
+    <p>
+        カスタムコンポーネントで直接v-forを使える。<br>
+        [3]にもある通り、コンポーネントでv-forを使う場合はkeyは必須。
+        (ないとconsoleにエラーが出るっぽい)
+    </p>
+    <div id="app10">
+
+        <div id="todo-list-example">
+            <input v-model="newTodoText" v-on:keyup.enter="addNewTodo" placeholder="Add a todo">
+            <ul>
+                <!-- is="todo-item" をつかうことで、潜在的なブラウザの解析エラーを回避する -->
+                <li is="todo-item"
+                    v-for="(todo, index) in todos"
+                    v-bind:key="todo.id"
+                    v-bind:title="todo.title"
+                    v-on:remove="todos.splice(index, 1)"
+                ></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        Vue.component('todo-item', {
+            template: '<li>{{ title }}<button v-on:click="$emit(\'remove\')">X</button></li>',
+            props: ['title']
+        });
+
+        new Vue({
+            el: '#todo-list-example',
+            data: {
+                newTodoText: '',
+                todos: [
+                    {
+                        id: 1,
+                        title: 'Do the dishes',
+                    },
+                    {
+                        id: 2,
+                        title: 'Take out the trash',
+                    },
+                    {
+                        id: 3,
+                        title: 'Mow the lawn'
+                    }
+                ],
+                nextTodoId: 4
+            },
+            methods: {
+                addNewTodo: function () {
+                    this.todos.push({
+                        id: this.nextTodoId++,
+                        title: this.newTodoText
+                    });
+                    this.newTodoText = '';
+                }
+            }
+        })
+    </script>
+</body>
+</html>
