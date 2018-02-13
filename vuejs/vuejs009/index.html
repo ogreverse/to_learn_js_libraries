@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>フォーム入力バインディング</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>[1] textareaのデータバインディング</h2>
+    <p>
+        textareaでv-modelディレクションを使うとバインディングされる。<br>
+        タグ内のテキストは無視される。
+    </p>
+    <div id="app1">
+        <textarea v-model="message" name="app1_message" rows="2" cols="40" placeholder="input text">このテキストは無視される</textarea>
+        <p>{{ message }}</p>
+    </div>
+    <script>
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                message: ''
+            }
+        });
+    </script>
+
+    <h2>[2] チェックボックスのバインディング</h2>
+    <p>
+    </p>
+    <div id="app2">
+        <p>単体のチェックボックスはboolean値になる</p>
+        <label for="app2_checkbox">{{ checked }}</label>
+        <input v-model="checked" name="app2_checkbox" type="checkbox">
+        <p>複数のチェックボックスは配列に格納される。</p>
+        <p>{{ checkedBox }}</p>
+        <label for="app2_checkbox_1">ボックス１</label>
+        <input v-model="checkedBox" type="checkbox" value="cb1">
+        <label for="app2_checkbox_1">ボックス２</label>
+        <input v-model="checkedBox" type="checkbox" value="cb2">
+        <label for="app2_checkbox_1">ボックス３</label>
+        <input v-model="checkedBox" type="checkbox" value="cb3">
+    </div>
+    <script>
+        var app2 = new Vue({
+            el: '#app2',
+            data: {
+                checked: true,
+                checkedBox: []
+            }
+        });
+    </script>
+
+    <h2>[3] ラジオボタンのバインディング</h2>
+    <div id="app3">
+        <input v-model="picked" name="app3_radio_1" type="radio" value="One"><label for="app3_radio_1">One</label>
+        <input v-model="picked" name="app3_radio_2" type="radio" value="Two"><label for="app3_radio_2">Two</label>
+        <p>{{ picked }}</p>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                picked: ''
+            }
+        });
+    </script>
+
+    <h2>[4] セレクトボックスのバインディング</h2>
+    <div id="app4">
+        <p>単一選択肢</p>
+        <select v-model="selected">
+            <option value="A">選択肢 A</option>
+            <option value="B">選択肢 B</option>
+            <option value="C">選択肢 C</option>
+        </select>
+        <p>選択されたのは：{{ selected }}</p>
+        <p>複数選択肢</p>
+        <select v-model="selected_multi" multiple>
+            <!--
+                iOSで、未選択だとchangeイベントを発生させないので、
+                以下のように空の値で無効なオプションを用意しておいたほうが良い。
+            -->
+            <option disabled value="">選択してください</option>
+            <option value="A">選択肢 A</option>
+            <option value="B">選択肢 B</option>
+            <option value="C">選択肢 C</option>
+        </select>
+        <p>選択されたのは：{{ selected_multi }}</p>
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            data: {
+                selected: '',
+                selected_multi: [],
+            }
+        });
+    </script>
+
+    <h2>[5] 値のバインディング</h2>
+    <p>
+        上までの例だと、バインディングの値は、radioが文字列、checkboxはbool値、selectは文字列、となっていたが、<br>
+        v-bindを使うと、値を束縛できる。
+    </p>
+    <div id="app5">
+        <input v-model="toggle" type="checkbox" true-value="foo" false-value="bar" v-bind:value="toggle">
+        <p>{{ toggle }}</p>
+
+        <input v-model="pick" name="app5_radio_1" type="radio" v-bind:value="a"><label for="app5_radio_1">One</label>
+        <input v-model="pick" name="app5_radio_2" type="radio" v-bind:value="b"><label for="app5_radio_2">Two</label>
+        <p>選択された値：{{ pick }}</p>
+
+        <select v-model="selected">
+            <!-- インラインオブジェクトリテラル -->
+            <option v-bind:value="{ alphabet: 'A' }">選択肢 A</option>
+            <option v-bind:value="{ alphabet: 'B' }">選択肢 B</option>
+            <option v-bind:value="{ alphabet: 'C' }">選択肢 C</option>
+        </select>
+        <p>選択されたのは：{{ selected.alphabet }}</p>
+    </div>
+    <script>
+        var app5 = new Vue({
+            el: '#app5',
+            data: {
+                toggle: '初期値',
+                pick: '',
+                a: 'ワン',
+                b: 'トゥー',
+                selected: {}
+            }
+        });
+    </script>
+
+    <h2>[6] 修飾子</h2>
+    <p>
+
+    </p>
+    <div id="app6">
+        <p>
+            デフォルトでは、v-modelはinputイベント後にデータと入力を同期するが、<br>
+            .lazyをつけると、changeイベント後に同期するようになる
+        </p>
+        <input type="text" v-model.lazy="msg1">
+        <p>入力値：{{ msg1 }}</p>
+
+        <p>
+            .number をつけると、入力値を数値として型変換できる。<br>
+            (type="number"にしても、デフォルトだとinputは文字列を返す。)
+        </p>
+        <input type="number" v-model.number="age">
+        <p>年齢：{{ age }}</p>
+
+        <p>
+            .trim を使うと、入力値を自動的にtrimする。<br>
+            (スペースなどを削る)
+        </p>
+        <input type="text" v-model.trim="msg2">
+        <p>入力値：{{ msg2 }}</p>
+    </div>
+    <script>
+        var app6 = new Vue({
+            el: '#app6',
+            data: {
+                msg1: '',
+                age: 0,
+                msg2: ''
+            }
+        });
+    </script>
+</body>
+</html>

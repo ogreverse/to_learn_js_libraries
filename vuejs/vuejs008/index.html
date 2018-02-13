@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>イベントハンドリング</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <h2>[1] インラインメソッドハンドラ</h2>
+    <div>
+        <p>
+            v-on:clickについて。<br>
+            v-on:click="関数名" と書くだけでなく、インラインのjs式でメソッド指定もできる。
+        </p>
+        <div id="app1">
+            <input type="button" v-on:click="say('good morning')" value="おはよう">
+            <input type="button" v-on:click="say('good afternoon')" value="こんにちわ">
+            <p>{{ message }}</p>
+        </div>
+        <script>
+            var app1 = new Vue({
+                el: '#app1',
+                data: {
+                    message: ''
+                },
+                methods: {
+                    say: function (message) {
+                        this.message = message;
+                    }
+                }
+            });
+        </script>
+
+        <p>
+            $event を使うとオリジナルのDOMイベントを参照できる。
+        </p>
+        <div id="app2">
+            <a href="#" v-on:click="say('hello', $event)">やあ</a>
+            <p>{{ message }}</p>
+        </div>
+        <script>
+            var app2 = new Vue({
+                el: '#app2',
+                data: {
+                    message: ''
+                },
+                methods: {
+                    say: function (message, event) {
+                        if (event) event.preventDefault();
+                        this.message = message;
+                    }
+                }
+            });
+        </script>
+    </div>
+
+    <h2>[2] イベント修飾子</h2>
+    <p>
+        v-onに以下のディレクティブの接尾辞をつけれる<br>
+        .stop<br>
+        .prevent<br>
+        .capture<br>
+        .self<br>
+        .once<br>
+        .passive
+    </p>
+    <div id="app3">
+        <p style="color:gray; font-style:italic;">クリックイベントの伝搬が止まる</p>
+        <a v-on:click.stop="doMethod1" href="#">CLICK.STOP</a>
+
+        <p style="color:gray; font-style:italic;">修飾子は繋げることができる</p>
+        <a v-on:click.stop.prevent="doMethod3" href="#">CLICK.STOP.PREVENT</a>
+
+        <p style="color:gray; font-style:italic;">submit イベントによってページがリロードされない</p>
+        <form v-on:submit.prevent="doMethod2" action="#" method="GET">
+            <input type="submit" value="SUBMIT.PREVENT">
+        </form>
+        <p style="color:gray; font-style:italic;">リロードを止めるだけなら、値を指定せず、修飾子だけ利用でもOK</p>
+        <form v-on:submit.prevent action="#" method="GET">
+            <input type="submit" value="SUBMIT.PREVENT">
+        </form>
+
+        <p style="color:gray; font-style:italic;">
+            イベントリスナーを追加するときにキャプチャモードで使う<br>
+            親要素のメソッドが実行された後に、子要素のメソッドが実行される。
+        </p>
+        <div v-on:click.capture="doMethod4parent" style="border:1px solid #000; padding: 5px;">
+            <a href="#" v-on:click="doMethod4child">CLICK.CAPTURE</a>
+        </div>
+        <p style="color:gray; font-style:italic;">何もつけないと、子要素のメソッドが実行された後に、親要素のメソッドが実行される。</p>
+        <div v-on:click="doMethod4parent" style="border:1px solid #000; padding: 5px;">
+            <a href="#" v-on:click="doMethod4child">CLICK</a>
+        </div>
+
+        <p style="color:gray; font-style:italic;">
+            event.target が要素自身のときだけ、ハンドラが呼び出される<br>
+            子要素がクリックされた時は親要素のメソッドは実行されない。
+        </p>
+        <div v-on:click.self="doMethod5parent" style="border:1px solid #000; padding: 5px;">
+            <a href="#" v-on:click="doMethod5child">CLICK.SELF</a>
+        </div>
+
+        <p style="color:gray; font-style:italic;">関数を一回だけ実行する</p>
+        <a v-on:click.once="doMethod6" href="#">CLICK.ONCE</a>
+
+        <p style="color:gray; font-style:italic;">
+            スクロールイベントのデフォルトの挙動(スクロール)は`onScroll` が `event.preventDefault()` を含んでいる場合、<br>
+            イベントの完了を待たずに即座に起きる。<br>
+            passive と private を併用できない
+        </p>
+        <a v-on:click.passive="doMethod7" href="#">CLICK.PASSIVE</a>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app3',
+            methods: {
+                doMethod1: function() {
+                    console.log('stop');
+                },
+                doMethod2: function() {
+                    console.log('prevent');
+                },
+                doMethod3: function() {
+                    console.log('stop prevent');
+                },
+                doMethod4parent: function() {
+                    console.log('capture parent');
+                },
+                doMethod4child: function() {
+                    console.log('capture child');
+                },
+                doMethod5parent: function() {
+                    console.log('self parent');
+                },
+                doMethod5child: function() {
+                    console.log('self child');
+                },
+                doMethod6: function() {
+                    console.log('once');
+                },
+                doMethod7: function() {
+                    console.log('passive');
+                }
+            }
+        });
+    </script>
+
+    <h2>[3] キー修飾子</h2>
+    <p>
+        キーのイベントハンドラもv-onで行える。<br>
+        キーコードの他に以下のエイリアスも使える。<br>
+        .enter<br>
+        .tab<br>
+        .delete (“Delete” と “Backspace” キー両方をキャプチャする)<br>
+        .esc<br>
+        .space<br>
+        .up<br>
+        .down<br>
+        .left<br>
+        .right
+    </p>
+    <div id="app4">
+        <p style="color:gray; font-style:italic;">v-on:keyup.13</p>
+        <input v-on:keyup.13="execute" type="text" value="Enterを押すと関数が実行される">
+        <p style="color:gray; font-style:italic;">v-on:keyup.enter</p>
+        <input v-on:keyup.enter="execute" type="text" value="Enterを押すと関数が実行される">
+        <p style="color:gray; font-style:italic;">省略記法</p>
+        <input @keyup.enter="execute" type="text" value="Enterを押すと関数が実行される">
+    </div>
+    <script>
+        var app4 = new Vue({
+            el: '#app4',
+            methods: {
+                execute: function() {
+                    console.log('execute');
+                }
+            }
+        });
+
+        // グローバルな config.keyCodes オブジェクト経由でカスタムキー修飾子のエイリアスも定義できる
+        Vue.config.keyCodes.f1 = 112;
+    </script>
+
+    <h2>[4] システム修飾子キー</h2>
+    <p>
+        複数キーでメソッドを実行する。
+    </p>
+    <div id="app5">
+        <input type="button" @keyup.alt.67="execute" value="Alt + C"><br>
+        <input type="button" @click.alt="execute" value="Alt + Click"><br>
+
+        <p>.exactをつけると、他のキーが押されてない場合のみメソッドが実行される。</p>
+        <input type="button" @click.alt.exact="execute" value="Alt + Click"><br>
+        <input type="button" @click.exact="execute" value="Click">
+
+        <p>.left .right .middleでマウスボタンを判定できる</p>
+        <input type="button" @click.right="execute" value="Right-Click">
+    </div>
+    <script>
+        var app5 = new Vue({
+            el: '#app5',
+            methods: {
+                execute: function() {
+                    console.log('execute');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
