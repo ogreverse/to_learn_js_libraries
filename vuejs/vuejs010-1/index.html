@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>コンポーネント</title>
+
+    <link rel="stylesheet" href="../../prettify/prettify.css">
+
+    <script src="../vue.js"></script>
+</head>
+<style>
+    .explain {
+        font-style: italic;
+        color: #999;
+    }
+</style>
+<body>
+    <h2>[1] グローバル登録</h2>
+    <p>
+        グローバルなコンポーネントの登録の仕方<br>
+        インスタンスを生成する前に定義する。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app1"&gt;
+            &lt;p class="explain"&gt;ローカルコンポーネントは定義されてないので使えない。&lt;/p&gt;
+            &lt;!-- これはエラーになる
+                &lt;my-local-component&gt;&lt;/my-local-component&gt;
+            --&gt;
+            &lt;p class="explain"&gt;グローバルコンポーネント&lt;/p&gt;
+            &lt;my-global-component&gt;&lt;/my-global-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            // Vueをインスタンス化する前に登録する
+            Vue.component('my-global-component', {
+                template: '&lt;p&gt;これはグローバルコンポーネントとして定義されたテンプレートです。&lt;/p&gt;'
+                // *** 下のように、複数のタグで構成されて、rootのタグがわからなくなるような場合はエラーになるので注意。 ***
+                // template: '&lt;p&gt;これはグローバルコンポーネントとして定義されたテンプレートです。&lt;/p&gt;&lt;p&gt;これは余計です&lt;/p&gt;'
+            });
+
+            // インスタンス化すると置き換わる
+            new Vue({
+                el: '#app1'
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app1">
+        <p class="explain">ローカルコンポーネントは定義されてないので使えない。</p>
+        <!-- これはエラーになる
+            <my-local-component></my-local-component>
+        -->
+        <p class="explain">グローバルコンポーネント</p>
+        <my-global-component></my-global-component>
+    </div>
+    <script>
+        // Vueをインスタンス化する前に登録する
+        Vue.component('my-global-component', {
+            template: '<p>これはグローバルコンポーネントとして定義されたテンプレートです。</p>'
+            // *** 下のように、複数のタグで構成されて、rootのタグがわからなくなるような場合はエラーになるので注意。 ***
+            // template: '<p>これはグローバルコンポーネントとして定義されたテンプレートです。</p><p>これは余計です</p>'
+        });
+
+        // インスタンス化すると置き換わる
+        new Vue({
+            el: '#app1'
+        });
+    </script>
+
+    <h2>[2] ローカル登録</h2>
+    <p>
+        ローカルなコンポーネントの登録の仕方<br>
+        インスタンス生成時に定義する。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app2"&gt;
+            &lt;p class="explain"&gt;ローカルコンポーネントが定義されているので使える。&lt;/p&gt;
+            &lt;my-local-component&gt;&lt;/my-local-component&gt;
+
+            &lt;p class="explain"&gt;もちろんグローバルコンポーネントも使える&lt;/p&gt;
+            &lt;my-global-component&gt;&lt;/my-global-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app2',
+                components: {
+                    'my-local-component': {
+                        template: '&lt;p&gt;これはローカルコンポーネントとして定義されたテンプレートです。&lt;/p&gt;'
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app2">
+        <p class="explain">ローカルコンポーネントが定義されているので使える。</p>
+        <my-local-component></my-local-component>
+
+        <p class="explain">もちろんグローバルコンポーネントも使える</p>
+        <my-global-component></my-global-component>
+    </div>
+    <script>
+        new Vue({
+            el: '#app2',
+            components: {
+                'my-local-component': {
+                    template: '<p>これはローカルコンポーネントとして定義されたテンプレートです。</p>'
+                }
+            }
+        });
+    </script>
+
+    <h2>[1,2 補足] 定義と登録を分ける</h2>
+    <p>
+        Vue.extend({})を使えば、別ファイルにコンポーネントの内容を切り出すこともできる。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="appendix_1_2"&gt;
+            &lt;my-component&gt;&lt;/my-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            var myComponent = Vue.extend({
+                template: '&lt;p&gt;切り出したコンポーネント&lt;/p&gt;'
+            });
+
+            new Vue({
+                el: '#appendix_1_2',
+                components: {
+                    // こんな感じで使える
+                    'my-component': myComponent
+                }
+            })
+        &lt;/script&gt;
+    </pre>
+
+    <div id="appendix_1_2">
+        <my-component></my-component>
+    </div>
+    <script>
+        var myComponent = Vue.extend({
+            template: '<p>切り出したコンポーネント</p>'
+        });
+
+        new Vue({
+            el: '#appendix_1_2',
+            components: {
+                // こんな感じで使える
+                'my-component': myComponent
+            }
+        })
+    </script>
+
+    <h2>[3] DOMテンプレート解析の注意事項</h2>
+    <p>
+        &lt;ul&gt;, &lt;ol&gt;, &lt;table&gt;, &lt;select&gt; のような要素で、<br>
+        その子要素をコンポーネントとした場合、要素によっては無効なコンテンツとして巻き上げられる。<br>
+
+    </p>
+
+    <pre class="prettyprint">
+
+        &lt;div id="app3"&gt;
+            &lt;p class="explain"&gt;次の場合はtableタグから外に出されて描画されてしまう。&lt;/p&gt;
+            &lt;table&gt;
+                &lt;tr-component&gt;&lt;/tr-component&gt;
+                &lt;tr-component&gt;&lt;/tr-component&gt;
+                &lt;tr-component&gt;&lt;/tr-component&gt;
+            &lt;/table&gt;
+
+            &lt;p class="explain"&gt;isを使って指定すると、tableの中にきちんと納まる。&lt;/p&gt;
+            &lt;table&gt;
+                &lt;tr is="tr-component"&gt;&lt;/tr&gt;
+                &lt;tr is="tr-component"&gt;&lt;/tr&gt;
+                &lt;tr is="tr-component"&gt;&lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app3',
+                components: {
+                    'tr-component': {
+                        template: '&lt;tr&gt;&lt;td&gt;子要素&lt;/td&gt;&lt;/tr&gt;'
+                    }
+                }
+            })
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app3">
+        <p class="explain">次の場合はtableタグから外に出されて描画されてしまう。</p>
+        <table>
+            <tr-component></tr-component>
+            <tr-component></tr-component>
+            <tr-component></tr-component>
+        </table>
+
+        <p class="explain">isを使って指定すると、tableの中にきちんと納まる。</p>
+        <table>
+            <tr is="tr-component"></tr>
+            <tr is="tr-component"></tr>
+            <tr is="tr-component"></tr>
+        </table>
+    </div>
+    <script>
+        new Vue({
+            el: '#app3',
+            components: {
+                'tr-component': {
+                    template: '<tr><td>子要素</td></tr>'
+                }
+            }
+        })
+    </script>
+
+    <h2>[4] コンポーネントの中で使われるdataは関数で返さないとダメ</h2>
+    <p>
+        関数でないと警告がコンソールに出力される。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app4"&gt;
+            &lt;my-local-component&gt;&lt;/my-local-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app4',
+                components: {
+                    'my-local-component': {
+                        template: '&lt;button v-on:click="counter += 1"&gt;{{ counter }}&lt;/button&gt;',
+                        data: function() {
+                            return {
+                                counter: 0
+                            };
+                        }
+                    }
+                }
+            })
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app4">
+        <my-local-component></my-local-component>
+    </div>
+    <script>
+        new Vue({
+            el: '#app4',
+            components: {
+                'my-local-component': {
+                    template: '<button v-on:click="counter += 1">{{ counter }}</button>',
+                    data: function() {
+                        return {
+                            counter: 0
+                        };
+                    }
+                }
+            }
+        })
+    </script>
+
+    <h2>[5] コンポーネントの構成</h2>
+    <p>
+        コンポーネントは、コンポーネントを別のコンポーネントの中で使われるのを想定されてる。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app5"&gt;
+            &lt;parent-component&gt;&lt;/parent-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            Vue.component('child-component', {
+                template: '&lt;span style="color:red;"&gt;子コンポーネント&lt;/span&gt;'
+            });
+
+            new Vue({
+                el: "#app5",
+                components: {
+                    // 同時に定義すると使えないっぽい
+                    //  'child-component': {
+                    //      name: "Child",
+                    //      template: '&lt;span style="color:red;"&gt;子コンポーネント&lt;/span&gt;'
+                    //  },
+                    'parent-component': {
+                        name: 'Parent',
+                        template: '&lt;p&gt;&lt;child-component&gt;&lt;/child-component&gt;&lt;/p&gt;'
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app5">
+        <parent-component></parent-component>
+    </div>
+    <script>
+        Vue.component('child-component', {
+            template: '<span style="color:red;">子コンポーネント</span>'
+        });
+
+        new Vue({
+            el: "#app5",
+            components: {
+                // 同時に定義すると使えないっぽい
+                //  'child-component': {
+                //      name: "Child",
+                //      template: '<span style="color:red;">子コンポーネント</span>'
+                //  },
+                'parent-component': {
+                    name: 'Parent',
+                    template: '<p><child-component></child-component></p>'
+                }
+            }
+        });
+    </script>
+
+    <h2>[6] プロパティによる、親から子へのデータの伝達</h2>
+    <p>
+        コンポーネントインスタンスは "隔離されたスコープ(isolated scope)" を持つ。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app6"&gt;
+            &lt;p class="explain"&gt;
+                コンポーネントにpropsを用意すると、親コンポーネントから"プロパティ"を通して情報を伝えることができる。
+            &lt;/p&gt;
+            &lt;my-local-component message="こんにちわ。" my-message="元気ですか？"&gt;&lt;/my-local-component&gt;
+
+            &lt;p class="explain"&gt;
+                以下のようにすれば、親のdataの値を子コンポーネントに情報を伝えることもできる。&lt;br&gt;
+                ここではinputで入力した内容を子コンポーネントのmessageに渡している。
+            &lt;/p&gt;
+            &lt;input type="text" v-model="parentMessage"&gt;&lt;br&gt;
+            &lt;my-local-component v-bind:message="parentMessage" my-message="元気ですか？"&gt;&lt;/my-local-component&gt;
+
+            &lt;p class="explain"&gt;
+                v-bindを使えば、オブジェクトを丸々propsとして渡すこともできる。&lt;br&gt;
+                allPropertyオブジェクトには子コンポーネントが受け取るpropsをプロパティとして定義している。
+            &lt;/p&gt;
+            &lt;my-local-component v-bind="allProperty"&gt;&lt;/my-local-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app6',
+                components: {
+                    'my-local-component': {
+                        // props で伝達するプロパティを宣言できる。
+                        // また命名規則はjs内ではキャメルケース、htmlではケバブケースにする。
+                        props: ['message', 'myMessage'],
+                        template: '&lt;p&gt;{{ message }}{{ myMessage }}&lt;/p&gt;'
+                    }
+                },
+                data: {
+                    parentMessage: 'こんにちわ。',
+                    allProperty: {
+                        message: 'おはよう。',
+                        myMessage: 'さようなら。'
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app6">
+        <p class="explain">
+            コンポーネントにpropsを用意すると、親コンポーネントから"プロパティ"を通して情報を伝えることができる。
+        </p>
+        <my-local-component message="こんにちわ。" my-message="元気ですか？"></my-local-component>
+
+        <p class="explain">
+            以下のようにすれば、親のdataの値を子コンポーネントに情報を伝えることもできる。<br>
+            ここではinputで入力した内容を子コンポーネントのmessageに渡している。
+        </p>
+        <input type="text" v-model="parentMessage"><br>
+        <my-local-component v-bind:message="parentMessage" my-message="元気ですか？"></my-local-component>
+
+        <p class="explain">
+            v-bindを使えば、オブジェクトを丸々propsとして渡すこともできる。<br>
+            allPropertyオブジェクトには子コンポーネントが受け取るpropsをプロパティとして定義している。
+        </p>
+        <my-local-component v-bind="allProperty"></my-local-component>
+    </div>
+    <script>
+        new Vue({
+            el: '#app6',
+            components: {
+                'my-local-component': {
+                    // props で伝達するプロパティを宣言できる。
+                    // また命名規則はjs内ではキャメルケース、htmlではケバブケースにする。
+                    props: ['message', 'myMessage'],
+                    template: '<p>{{ message }}{{ myMessage }}</p>'
+                }
+            },
+            data: {
+                parentMessage: 'こんにちわ。',
+                allProperty: {
+                    message: 'おはよう。',
+                    myMessage: 'さようなら。'
+                }
+            }
+        });
+    </script>
+
+    <h2>[7] 数を渡す</h2>
+    <p class="explain">
+        プロパティを文字列ではなく、数値として渡したい場合は、v-bindを使って渡す必要がある。
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app7"&gt;
+            &lt;!-- 文字列で渡した場合 --&gt;
+            &lt;calc-component num="1"&gt;&lt;/calc-component&gt;
+            &lt;!-- 数値で渡した場合 --&gt;
+            &lt;calc-component v-bind:num="1"&gt;&lt;/calc-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app7',
+                components: {
+                    'calc-component': {
+                        props: ['num'],
+                        template: '&lt;p&gt;num + 1 = {{ num + 1 }}&lt;/p&gt;'
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app7">
+        <!-- 文字列で渡した場合 -->
+        <calc-component num="1"></calc-component>
+        <!-- 数値で渡した場合 -->
+        <calc-component v-bind:num="1"></calc-component>
+    </div>
+    <script>
+        new Vue({
+            el: '#app7',
+            components: {
+                'calc-component': {
+                    props: ['num'],
+                    template: '<p>num + 1 = {{ num + 1 }}</p>'
+                }
+            }
+        });
+    </script>
+
+    <h2>[8] 単方向データフロー</h2>
+    <p>
+        親から子へのデータバインディングは単方向で、<br>
+        親プロパティが更新した時に子に伝わるが、逆はない。<br>
+        (2018.02.20) ちょっと理解できない部分なので先へ進めることにした。
+    </p>
+    <pre class="prettyprint">
+        &lt;div id="app8"&gt;
+            &lt;parent-component v-bind:initial-counter="1"&gt;&lt;/parent-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            Vue.component('child-component', {
+                props: ['initialCounter'],
+                template: '&lt;a href="#" @click.prevent="childCounter++"&gt;親コンポーネントのカウンター：{{ parentCounter }}, 子コンポーネントのカウンター：{{ childCounter }}&lt;/a&gt;',
+                data: function() {
+                    return {
+                        parentCounter: this.$parent.parentCounter,
+                        childCounter: this.initialCounter
+                    };
+                }
+            });
+
+            new Vue({
+                el: '#app8',
+                components: {
+                    'parent-component': {
+                        props: ['initialCounter'],
+                        template: '&lt;div&gt;' +
+                        '&lt;a href="#" @click.prevent="parentCounter++"&gt;親コンポーネントのカウンター：{{ parentCounter }}, 子コンポーネントのカウンター：{{ childCounter }}&lt;/a&gt;&lt;br&gt;' +
+                        '&lt;child-component v-bind:initial-counter="2"&gt;&lt;/child-component&gt;' +
+                        '&lt;/div&gt;',
+                        data: function() {
+                            return {
+                                parentCounter: this.initialCounter,
+                                childCounter: this.$children.$options
+                            };
+                        }
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+    <div id="app8">
+        <parent-component v-bind:initial-counter="1"></parent-component>
+    </div>
+    <script>
+        Vue.component('child-component', {
+            props: ['initialCounter'],
+            template: '<a href="#" @click.prevent="childCounter++">親コンポーネントのカウンター：{{ parentCounter }}, 子コンポーネントのカウンター：{{ childCounter }}</a>',
+            data: function() {
+                return {
+                    parentCounter: this.$parent.parentCounter,
+                    childCounter: this.initialCounter
+                };
+            }
+        });
+
+        new Vue({
+            el: '#app8',
+            components: {
+                'parent-component': {
+                    props: ['initialCounter'],
+                    template: '<div>' +
+                              '<a href="#" @click.prevent="parentCounter++">親コンポーネントのカウンター：{{ parentCounter }}, 子コンポーネントのカウンター：{{ childCounter }}</a><br>' +
+                              '<child-component v-bind:initial-counter="2"></child-component>' +
+                              '</div>',
+                    data: function() {
+                        return {
+                            parentCounter: this.initialCounter,
+                            childCounter: this.$children.$options
+                        };
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>[9] プロパティの検証</h2>
+    <p>
+        コンポーネントが受け取るプロパティの必要条件。<br>
+        検証が失敗するとコンソールに警告を出す。<br>
+        コンポーネントがインスタンス化される前に実行されるので、<br>
+        data, computed, mthods などのプロパティは利用できない。
+    </p>
+    <pre class="prettyprint">
+        &lt;script&gt;
+            Vue.component('example', {
+                props: {
+                    // 基本 (`null` ならどんな型でも良い)
+                    // type は次のコンストラクタのいずれかになる。
+                    // String, Number, Boolean, Function, Object, Array, Symbol
+                    propA: Number,
+                    // 複数
+                    propB: [String, Number],
+
+                    propC: {
+                        type: String,
+                        // 必須項目
+                        required: true,
+                        // デフォルト値
+                        default: 'test'
+                    },
+                    // オブジェクトや配列のデフォルト値はファクトリ関数から返すようにする
+                    propD: {
+                        type: Object,
+                        default: function() {
+                            return {message: 'hello'}
+                        }
+                    },
+                    // カスタムバリデータ関数
+                    propF: {
+                        validator: function(value) {
+                            return value &gt; 10
+                        }
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+    <script>
+        Vue.component('example', {
+            props: {
+                // 基本 (`null` ならどんな型でも良い)
+                // type は次のコンストラクタのいずれかになる。
+                // String, Number, Boolean, Function, Object, Array, Symbol
+                propA: Number,
+                // 複数
+                propB: [String, Number],
+
+                propC: {
+                    type: String,
+                    // 必須項目
+                    required: true,
+                    // デフォルト値
+                    default: 'test'
+                },
+                // オブジェクトや配列のデフォルト値はファクトリ関数から返すようにする
+                propD: {
+                    type: Object,
+                    default: function() {
+                        return {message: 'hello'}
+                    }
+                },
+                // カスタムバリデータ関数
+                propF: {
+                    validator: function(value) {
+                        return value > 10
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>[10] プロパティではない属性</h2>
+    <p>
+        コンポーネントはコンポーネントのルート要素に追加される任意の属性を受け入れられる。<br>
+        同じ属性がhtmlとテンプレートそれぞれで指定された場合は、htmlが優先される。<br>
+        ただし、classとstyleは両方の属性値がマージされる。
+    </p>
+    <pre class="prettyprint">
+        &lt;div id="app9"&gt;
+            &lt;my-component data-my-attribute="1" data-type="1" class="assigned_in_html"&gt;&lt;/my-component&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app9',
+                components: {
+                    'my-component' : {
+                        template: '&lt;p data-type="2" class="assigned_in_template"&gt;このpタグはルート属性なので上で、指定した属性が追加されているはず。&lt;br&gt;' +
+                        '&lt;span style="color:#197700;"&gt;このspanタグは子要素なので追加されない。&lt;/span&gt;&lt;/p&gt;'
+                    }
+                }
+            })
+        &lt;/script&gt;
+    </pre>
+    <div id="app9">
+        <my-component data-my-attribute="1" data-type="1" class="assigned_in_html"></my-component>
+    </div>
+    <script>
+        new Vue({
+            el: '#app9',
+            components: {
+                'my-component' : {
+                    template: '<p data-type="2" class="assigned_in_template">このpタグはルート属性なので上で、指定した属性が追加されているはず。<br>' +
+                              '<span style="color:#197700;">このspanタグは子要素なので追加されない。</span></p>'
+                }
+            }
+        });
+    </script>
+
+    <h2>[11] カスタムイベント</h2>
+    <p>
+        子から親へのイベント伝達<br>
+        $on(eventName)：イベントを購読する<br>
+        $emit(eventName)：親コンポーネントでディレクティブで指定されているイベントを実行する
+    </p>
+
+    <pre class="prettyprint">
+        &lt;div id="app10"&gt;
+            &lt;p&gt;{{ total }}&lt;/p&gt;
+
+            &lt;!-- ここのincrementイベントは、子コンポーネントから$emitを使って実行する --&gt;
+            &lt;p&gt;
+                &lt;my-component v-on:increment="incrementTotal"&gt;&lt;/my-component&gt;
+                &lt;my-component v-on:increment="incrementTotal"&gt;&lt;/my-component&gt;
+            &lt;/p&gt;
+
+            &lt;!-- コンポーネントにclickなどのネイティブイベントをつけて、それを実行したい場合は .native をつける --&gt;
+            &lt;!-- この場合$emitで実行するのは不要 --&gt;
+            &lt;p&gt;
+                .nativeをつけてないボタン(totalは２倍されない) &gt; &lt;my-component-multiple v-on:click="multipleTotal"&gt;&lt;/my-component-multiple&gt;&lt;br&gt;
+                .nativeをつけているボタン(totalが２倍される　) &gt; &lt;my-component-multiple v-on:click.native="multipleTotal"&gt;&lt;/my-component-multiple&gt;
+            &lt;/p&gt;
+        &lt;/div&gt;
+        &lt;script&gt;
+            new Vue({
+                el: '#app10',
+                data: {
+                    total: 1
+                },
+                methods: {
+                    // {{ total }} の数を加算する
+                    incrementTotal: function() {
+                        this.total++;
+                    },
+                    multipleTotal: function() {
+                        this.total *= 2;
+                    }
+                },
+                components: {
+                    'my-component': {
+                        template: '&lt;button v-on:click="incrementButtonCounter"&gt;+1 ボタン：{{ counter }}&lt;/button&gt;',
+                        data: function () {
+                            return {
+                                counter: 1
+                            }
+                        },
+                        methods: {
+                            // ボタンのカウンターを加算する
+                            incrementButtonCounter: function () {
+                                this.counter++;
+
+                                // 親コンポーネントのv-onディレクティブで指定されたイベントを実行する
+                                this.$emit('increment');
+                            }
+                        }
+                    },
+                    'my-component-multiple': {
+                        template: '&lt;button v-on:click="multipleButtonCounter"&gt;*2 ボタン：{{ counter }}&lt;/button&gt;',
+                        data: function () {
+                            return {
+                                counter: 1
+                            }
+                        },
+                        methods: {
+                            // ボタンのカウンターを２倍する
+                            multipleButtonCounter: function () {
+                                // 親の方は親の方でclickイベントをつけたので、totalを２倍にするのはそっちで行っている
+                                this.counter *= 2;
+                            }
+                        }
+                    }
+                }
+            });
+        &lt;/script&gt;
+    </pre>
+
+    <div id="app10">
+        <p>{{ total }}</p>
+
+        <!-- ここのincrementイベントは、子コンポーネントから$emitを使って実行する -->
+        <p>
+            <my-component v-on:increment="incrementTotal"></my-component>
+            <my-component v-on:increment="incrementTotal"></my-component>
+        </p>
+
+        <!-- コンポーネントにclickなどのネイティブイベントをつけて、それを実行したい場合は .native をつける -->
+        <!-- この場合$emitで実行するのは不要 -->
+        <p>
+            .nativeをつけてないボタン(totalは２倍されない) > <my-component-multiple v-on:click="multipleTotal"></my-component-multiple><br>
+            .nativeをつけているボタン(totalが２倍される　) > <my-component-multiple v-on:click.native="multipleTotal"></my-component-multiple>
+        </p>
+    </div>
+    <script>
+        new Vue({
+            el: '#app10',
+            data: {
+                total: 1
+            },
+            methods: {
+                // {{ total }} の数を加算する
+                incrementTotal: function() {
+                    this.total++;
+                },
+                multipleTotal: function() {
+                    this.total *= 2;
+                }
+            },
+            components: {
+                'my-component': {
+                    template: '<button v-on:click="incrementButtonCounter">+1 ボタン：{{ counter }}</button>',
+                    data: function () {
+                        return {
+                            counter: 1
+                        }
+                    },
+                    methods: {
+                        // ボタンのカウンターを加算する
+                        incrementButtonCounter: function () {
+                            this.counter++;
+
+                            // 親コンポーネントのv-onディレクティブで指定されたイベントを実行する
+                            this.$emit('increment');
+                        }
+                    }
+                },
+                'my-component-multiple': {
+                    template: '<button v-on:click="multipleButtonCounter">*2 ボタン：{{ counter }}</button>',
+                    data: function () {
+                        return {
+                            counter: 1
+                        }
+                    },
+                    methods: {
+                        // ボタンのカウンターを２倍する
+                        multipleButtonCounter: function () {
+                            // 親の方は親の方でclickイベントをつけたので、totalを２倍にするのはそっちで行っている
+                            this.counter *= 2;
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script src="../../prettify/prettify.js"></script>
+    <script src="../../prettify/lang-css.js"></script>
+    <script>prettyPrint();</script>
+</body>
+</html>
